@@ -1,4 +1,4 @@
 # created by virtualenv automatically
 *.egg-info/
 venv
-.idea
+.idea/
