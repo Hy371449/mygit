@@ -1,4 +1,6 @@
 # created by virtualenv automatically
 *.egg-info/
 venv
-.idea/
+idea/
+.mygit/
+__pycache__
