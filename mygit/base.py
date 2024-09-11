@@ -135,7 +135,6 @@ def iter_commits_and_parents(oids):
         oids.appendleft(commit.parent)
 
 
-
 def get_oid(name):
     if name == '@':
         name = 'HEAD'
@@ -156,6 +155,10 @@ def get_oid(name):
         return name
 
     assert False, f'Unknown name {name}'
+
+
+def create_branch(name, oid):
+    data.update_ref(f'refs/heads/{name}', oid)
 
 
 def is_ignored(path):
