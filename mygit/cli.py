@@ -4,7 +4,6 @@ import sys
 import textwrap
 import subprocess
 
-
 from . import base
 from . import data
 
@@ -91,9 +90,9 @@ def commit(args):
 
 
 def log(args):
-    oid = args.oid
-    while oid:
+    for oid in base.iter_commits_and_parents({args.oid}):
         commit = base.get_commit(oid)
+
         print(f'commit {oid}\n')
         print(textwrap.indent(commit.message, '    '))
         print('')
@@ -129,6 +128,6 @@ def k(args):
     print(dot)
 
     with subprocess.Popen(
-        ['dot', '-Tgtk', '/dev/stdin'],
-        stdin=subprocess.PIPE) as proc:
+            ['dot', '-Tgtk', '/dev/stdin'],
+            stdin=subprocess.PIPE) as proc:
         proc.communicate(dot.encode())
