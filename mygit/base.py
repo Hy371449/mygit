@@ -87,7 +87,7 @@ def commit(message):
 
     commit = f'tree {write_tree()}\n'
 
-    HEAD = data.get_HEAD()
+    HEAD = data.get_ref('HEAD').value
     if HEAD:
         commit += f'parent {HEAD}\n'
 
@@ -95,9 +95,23 @@ def commit(message):
     commit += f'{message}\n'
 
     oid = data.hash_object(commit.encode(), 'commit')
-    data.set_HEAD(oid)
+    data.update_ref('HEAD', data.RefValue(symbolic=False, value=oid))
 
     return oid
+
+
+def checkout(oid):
+    commit = get_commit(oid)
+    read_tree(commit.tree)
+    data.update_ref('HEAD', data.RefValue(symbolic=False, value=oid))
+
+
+def create_tag(name, oid):
+    data.update_ref(f'refs/tags/{name}', data.RefValue(symbolic=False, value=oid))
+
+
+def create_branch(name, oid):
+    data.update_ref(f'refs/heads/{name}', data.RefValue(symbolic=False, value=oid))
 
 
 Commit = namedtuple('Commit', ['tree', 'parent', 'message'])
@@ -147,18 +161,14 @@ def get_oid(name):
     ]
 
     for ref in refs_to_try:
-        if data.get_ref(ref):
-            return data.get_ref(ref)
+        if data.get_ref(ref).value:
+            return data.get_ref(ref).value
 
     is_hex = all(c in string.hexdigits for c in name)
     if len(name) == 40 and is_hex:
         return name
 
     assert False, f'Unknown name {name}'
-
-
-def create_branch(name, oid):
-    data.update_ref(f'refs/heads/{name}', oid)
 
 
 def is_ignored(path):

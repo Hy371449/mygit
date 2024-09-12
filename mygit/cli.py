@@ -102,8 +102,6 @@ def log(args):
         print(textwrap.indent(commit.message, '    '))
         print('')
 
-        oid = commit.parent
-
 
 def checkout(args):
     base.checkout(args.oid)
@@ -113,14 +111,19 @@ def tag(args):
     base.create_tag(args.name, args.oid)
 
 
+def branch(args):
+    base.create_branch(args.name, args.start_point)
+    print(f'Branch {args.name} created at {args.start_point[:10]}')
+
+
 def k(args):
     dot = 'digraph commits {\n'
 
     oids = set()
     for refname, ref in data.iter_refs():
         dot += f'"{refname}" [shape=note]\n'
-        dot += f'"{refname}" -> "{ref}"\n'
-        oids.add(ref)
+        dot += f'"{refname}" -> "{ref.value}"\n'
+        oids.add(ref.value)
 
     for oid in base.iter_commits_and_parents(oids):
         commit = base.get_commit(oid)
@@ -136,8 +139,3 @@ def k(args):
             ['dot', '-Tgtk', '/dev/stdin'],
             stdin=subprocess.PIPE) as proc:
         proc.communicate(dot.encode())
-
-
-def branch(args):
-    base.create_branch(args.name, args.start_point)
-    print(f'Branch {args.name} created at {args.start_point[:10]}')
